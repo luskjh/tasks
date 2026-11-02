@@ -1,0 +1,4 @@
+{
+  "recommendations": ["esbenp.prettier-vscode", "golang.go"],
+  "unwantedRecommendations": ["ms-vscode.makefile-tools"]
+}
