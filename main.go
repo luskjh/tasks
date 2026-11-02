@@ -8,6 +8,11 @@ import (
 	"sorantics.com/tasks/internal/lib"
 )
 
+func serve(config *lib.Config) error {
+	fmt.Printf("serving on port %d\n", config.Port)
+	return nil
+}
+
 func run() error {
 	var path, task string
 
@@ -20,8 +25,13 @@ func run() error {
 		return err
 	}
 
-	fmt.Printf("config.port = %d\n", config.Port)
-	return nil
+	switch task {
+	case "serve":
+		return serve(config)
+	default:
+		flag.Usage()
+		return nil
+	}
 }
 
 func main() {
