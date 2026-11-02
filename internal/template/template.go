@@ -2,5 +2,5 @@ package template
 
 import "embed"
 
-//go:embed all:layout all:page all:shared
+//go:embed layout/* shared/* page/*
 var FS embed.FS

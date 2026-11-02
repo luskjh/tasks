@@ -10,7 +10,7 @@ import (
 
 type Registry map[string]*template.Template
 
-func NewRegistry(fsys fs.FS) (Registry, error) {
+func NewRegistry(fsys fs.FS, funcs template.FuncMap) (Registry, error) {
 	var pages, rest []string
 
 	if err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
@@ -31,7 +31,7 @@ func NewRegistry(fsys fs.FS) (Registry, error) {
 		return nil, err
 	}
 
-	base := template.New("")
+	base := template.New("").Funcs(funcs)
 	for _, path := range rest {
 		if err := parse(fsys, base, path); err != nil {
 			return nil, err

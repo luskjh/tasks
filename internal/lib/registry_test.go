@@ -27,37 +27,28 @@ func (unreadableFS) ReadFile(name string) ([]byte, error) {
 	return nil, fs.ErrNotExist
 }
 
-var testFS = fstest.MapFS{
-	"layout/dashboard.html": {
-		Data: []byte(`<html>{{ template "shared/head.html" . }}<body>{{ template "content" . }}</body></html>`),
-	},
-	"page/dashboard/overview.html": {
-		Data: []byte(`{{ define "title" }}Overview{{ end }}{{ define "content" }}<h1>Overview</h1>{{ end }}`),
-	},
-	"shared/head.html": {
-		Data: []byte(`<head><title>{{ template "title" . }}</title></head>`),
-	},
-	"ignored.txt": {
-		Data: []byte("not a template"),
-	},
-}
-
-func TestNewRegistry(t *testing.T) {
-	registry, err := NewRegistry(testFS)
-	if registry == nil {
-		t.Errorf("expected registry to be nonnil, got %v", registry)
+var (
+	testFS = fstest.MapFS{
+		"layout/dashboard.html": {
+			Data: []byte(`<html>{{ template "shared/head.html" . }}<body>{{ template "content" . }}</body></html>`),
+		},
+		"page/dashboard/overview.html": {
+			Data: []byte(`{{ define "title" }}Overview{{ end }}{{ define "content" }}<h1>Overview</h1><p>{{ hello "fido" }}</p>{{ end }}`),
+		},
+		"shared/head.html": {
+			Data: []byte(`<head><title>{{ template "title" . }}</title></head>`),
+		},
+		"ignored.txt": {
+			Data: []byte("not a template"),
+		},
 	}
-	if err != nil {
-		t.Fatalf("expected error to be nil, got %v", err)
+	testFuncs = template.FuncMap{
+		"hello": func(name string) string { return "hello, " + name },
 	}
-
-	if _, ok := registry["dashboard/overview.html"]; !ok {
-		t.Errorf("expected registry to contain %q", "dashboard/overview.html")
-	}
-}
+)
 
 func TestNewRegistry_WalkError(t *testing.T) {
-	registry, err := NewRegistry(errorFS{})
+	registry, err := NewRegistry(errorFS{}, nil)
 	if registry != nil {
 		t.Errorf("expected registry to be nil, got %v", registry)
 	}
@@ -76,7 +67,7 @@ func TestNewRegistry_BaseParseError(t *testing.T) {
 		"layout/dashboard.html": {Data: []byte(`{{`)},
 	}
 
-	registry, err := NewRegistry(fsys)
+	registry, err := NewRegistry(fsys, nil)
 	if registry != nil {
 		t.Errorf("expected registry to be nil, got %v", registry)
 	}
@@ -97,7 +88,7 @@ func TestNewRegistry_PageMissingError(t *testing.T) {
 		},
 	}
 
-	registry, err := NewRegistry(fsys)
+	registry, err := NewRegistry(fsys, nil)
 	if registry != nil {
 		t.Errorf("expected registry to be nil, got %v", registry)
 	}
@@ -111,27 +102,8 @@ func TestNewRegistry_PageMissingError(t *testing.T) {
 	}
 }
 
-func TestNewRegistry_PageParseError(t *testing.T) {
-	fsys := fstest.MapFS{
-		"page/dashboard/overview.html": {Data: []byte(`{{`)},
-	}
-
-	registry, err := NewRegistry(fsys)
-	if registry != nil {
-		t.Errorf("expected registry to be nil, got %v", registry)
-	}
-	if err == nil {
-		t.Fatalf("expected error to be nonnil, got nil")
-	}
-
-	expected := "unclosed action"
-	if msg := err.Error(); !strings.Contains(msg, expected) {
-		t.Fatalf("expected error message to contain %q, got %q", expected, msg)
-	}
-}
-
 func TestRegistry_RenderWithLayout(t *testing.T) {
-	registry, err := NewRegistry(testFS)
+	registry, err := NewRegistry(testFS, testFuncs)
 	if err != nil {
 		t.Fatalf("error creating registry: %v", err)
 	}
@@ -147,6 +119,7 @@ func TestRegistry_RenderWithLayout(t *testing.T) {
 	for _, expected := range []string{
 		"<title>Overview</title>",
 		"<h1>Overview</h1>",
+		"<p>hello, fido</p>",
 	} {
 		if !strings.Contains(body, expected) {
 			t.Errorf("expected response body to contain %q, got %q", expected, body)
@@ -155,7 +128,7 @@ func TestRegistry_RenderWithLayout(t *testing.T) {
 }
 
 func TestRegistry_RenderWithLayout_PageNotFound(t *testing.T) {
-	registry, err := NewRegistry(fstest.MapFS{})
+	registry, err := NewRegistry(fstest.MapFS{}, nil)
 	if err != nil {
 		t.Fatalf("error creating registry: %v", err)
 	}

@@ -8,12 +8,14 @@
     }
   },
   "packageManager": "pnpm@12.16.1",
-  "scripts": {
-    "check": "prettier --check .",
-    "format": "prettier --write ."
-  },
   "devDependencies": {
     "prettier": "^3.9.10",
-    "prettier-plugin-go-template": "^0.0.15"
+    "prettier-plugin-go-template": "^0.0.15",
+    "vite": "^8.3.5"
+  },
+  "scripts": {
+    "build": "vite build",
+    "check": "prettier --check .",
+    "format": "prettier --write ."
   }
 }

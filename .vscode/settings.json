@@ -2,9 +2,12 @@
   "files.associations": {
     ".html": "go-template"
   },
-  "[html][go-template][json][jsonc]": {
+  "[css][go-template][html][javascript][json][jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.tabSize": 2
+  },
+  "[markdown]": {
+    "editor.rulers": [72]
   }
 }

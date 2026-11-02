@@ -1,0 +1,9 @@
+{{ range .Modules }}
+  <link rel="modulepreload" href="/{{ . }}" />
+{{ end }}
+{{ range .Styles }}
+  <link rel="stylesheet" href="/{{ . }}" />
+{{ end }}
+{{ if .Script }}
+  <script type="module" src="/{{ .Script }}"></script>
+{{ end }}
