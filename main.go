@@ -3,14 +3,18 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 
 	"sorantics.com/tasks/internal/lib"
 )
 
 func serve(config *lib.Config) error {
-	fmt.Printf("serving on port %d\n", config.Port)
-	return nil
+	mux := http.NewServeMux()
+
+	addr := config.Addr()
+	fmt.Printf("listening on %s\n", addr)
+	return http.ListenAndServe(addr, mux)
 }
 
 func run() error {
