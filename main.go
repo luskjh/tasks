@@ -1,7 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"flag"
+	"fmt"
+)
 
 func main() {
-	fmt.Println("hello, world")
+	var path, task string
+
+	flag.StringVar(&path, "path", "config.json", "path to config file")
+	flag.StringVar(&task, "task", "usage", "task to run")
+	flag.Parse()
+
+	fmt.Printf("path = %s, task = %s\n", path, task)
 }
