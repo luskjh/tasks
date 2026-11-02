@@ -8,11 +8,17 @@ import (
 
 	"sorantics.com/tasks/internal/domain/dashboard"
 	"sorantics.com/tasks/internal/lib"
+	"sorantics.com/tasks/internal/template"
 )
 
 func serve(config *lib.Config) error {
+	reg, err := lib.NewRegistry(template.FS)
+	if err != nil {
+		return err
+	}
+
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /{$}", dashboard.Overview)
+	mux.HandleFunc("GET /{$}", dashboard.Overview(reg))
 
 	addr := config.Addr()
 	fmt.Printf("listening on %s\n", addr)

@@ -1,4 +1,8 @@
 {
-  "recommendations": ["esbenp.prettier-vscode", "golang.go"],
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "golang.go",
+    "jinliming2.vscode-go-template"
+  ],
   "unwantedRecommendations": ["ms-vscode.makefile-tools"]
 }
