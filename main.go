@@ -3,14 +3,30 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
+	"sorantics.com/tasks/internal/lib"
 )
 
-func main() {
+func run() error {
 	var path, task string
 
 	flag.StringVar(&path, "path", "config.json", "path to config file")
 	flag.StringVar(&task, "task", "usage", "task to run")
 	flag.Parse()
 
-	fmt.Printf("path = %s, task = %s\n", path, task)
+	config, err := lib.NewConfig(path)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("config.port = %d\n", config.Port)
+	return nil
+}
+
+func main() {
+	if err := run(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }
