@@ -6,11 +6,13 @@ import (
 	"net/http"
 	"os"
 
+	"sorantics.com/tasks/internal/domain/dashboard"
 	"sorantics.com/tasks/internal/lib"
 )
 
 func serve(config *lib.Config) error {
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /{$}", dashboard.Overview)
 
 	addr := config.Addr()
 	fmt.Printf("listening on %s\n", addr)
