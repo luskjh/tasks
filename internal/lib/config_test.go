@@ -2,12 +2,13 @@ package lib
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
 
 func TestNewConfig(t *testing.T) {
-	path := t.TempDir() + "config.json"
+	path := filepath.Join(t.TempDir(), "config.json")
 	if err := os.WriteFile(path, []byte(`{"port":8000}`), 0644); err != nil {
 		t.Fatalf("unable to write test config: %v", err)
 	}
@@ -27,7 +28,7 @@ func TestNewConfig(t *testing.T) {
 }
 
 func TestNewConfig_ReadFileError(t *testing.T) {
-	path := t.TempDir() + "config.json"
+	path := filepath.Join(t.TempDir(), "config.json")
 
 	config, err := NewConfig(path)
 	if config != nil {
@@ -44,7 +45,7 @@ func TestNewConfig_ReadFileError(t *testing.T) {
 }
 
 func TestNewConfig_UnmarshallError(t *testing.T) {
-	path := t.TempDir() + "config.json"
+	path := filepath.Join(t.TempDir(), "config.json")
 	if err := os.WriteFile(path, []byte("{"), 0644); err != nil {
 		t.Fatalf("unable to write test config: %v", err)
 	}

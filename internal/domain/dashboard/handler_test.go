@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -15,17 +16,12 @@ import (
 func testReg(t *testing.T) lib.Registry {
 	t.Helper()
 
-	path := t.TempDir() + "manifest.json"
+	path := filepath.Join(t.TempDir(), "manifest.json")
 	if err := os.WriteFile(path, []byte(`{
 		"js/dashboard.js": {
 			"file": "assets/dashboard.js",
 			"isEntry": true,
-			"imports": ["_shared.js"],
 			"css": ["assets/dashboard.css"]
-		},
-		"_shared.js": {
-			"file": "assets/shared.js",
-			"css": ["assets/shared.css"]
 		}
 	}`), 0644); err != nil {
 		t.Fatalf("error writing test manifest: %v", err)

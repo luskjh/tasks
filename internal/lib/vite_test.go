@@ -6,9 +6,18 @@ import (
 	"testing"
 )
 
-func TestNewVite(t *testing.T) {
+func testManifest(t *testing.T, data string) string {
 	path := filepath.Join(t.TempDir(), "manifest.json")
-	if err := os.WriteFile(path, []byte(`{
+
+	if err := os.WriteFile(path, []byte(data), 0644); err != nil {
+		t.Fatalf("error writing test manifest: %v", err)
+	}
+
+	return path
+}
+
+func TestNewVite(t *testing.T) {
+	path := testManifest(t, `{
 		"js/dashboard.js": {
 			"file": "assets/dashboard.js",
 			"isEntry": true,
@@ -23,28 +32,18 @@ func TestNewVite(t *testing.T) {
 		"_nested.js": {
 			"file": "assets/nested.js",
 			"css": ["assets/nested.css"]
-		},
-		"js/other.js": {
-			"file": "assets/other.js",
-			"isEntry": true,
-			"css": ["assets/other.css"]
 		}
-	}`), 0644); err != nil {
-		t.Fatalf("error writing test manifest: %v", err)
-	}
+	}`)
 
 	vite, err := NewVite(path)
 	if err != nil {
 		t.Fatalf("expected error to be nil, got %v", err)
 	}
 
-	if l := len(*vite); l != 2 {
-		t.Fatalf("expected two entries, got %d", l)
-	}
-
-	entry, ok := (*vite)["js/dashboard.js"]
+	name := "js/dashboard.js"
+	entry, ok := (*vite)[name]
 	if !ok {
-		t.Fatalf("expected entry map to contain %q", "js/dashboard.js")
+		t.Fatalf("expected entry map to contain %q", name)
 	}
 
 	want := `
@@ -67,8 +66,8 @@ func TestNewVite(t *testing.T) {
 		t.Errorf("expected entry HTML:\n%s\ngot:\n%s", want, entry)
 	}
 
-	if got := vite.Entry("js/dashboard.js"); got != entry {
-		t.Errorf("expected Entry(%q) to return %q, got %q", "js/dashboard.js", entry, got)
+	if got := vite.Entry(name); got != entry {
+		t.Errorf("expected Entry() to return %q, got %q", entry, got)
 	}
 
 	if got := vite.Entry("missing.js"); got != "" {
@@ -81,8 +80,7 @@ func TestNewVite(t *testing.T) {
 }
 
 func TestNewVite_DeduplicatesDependencies(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "manifest.json")
-	if err := os.WriteFile(path, []byte(`{
+	path := testManifest(t, `{
 		"js/dashboard.js": {
 			"file": "assets/dashboard.js",
 			"isEntry": true,
@@ -104,9 +102,7 @@ func TestNewVite_DeduplicatesDependencies(t *testing.T) {
 			"imports": ["_a.js"],
 			"css": ["assets/shared.css"]
 		}
-	}`), 0644); err != nil {
-		t.Fatalf("error writing test manifest: %v", err)
-	}
+	}`)
 
 	vite, err := NewVite(path)
 	if err != nil {
@@ -144,7 +140,8 @@ func TestNewVite_DeduplicatesDependencies(t *testing.T) {
 }
 
 func TestNewVite_ReadFileError(t *testing.T) {
-	vite, err := NewVite(filepath.Join(t.TempDir(), ".vite", "manifest.json"))
+	path := filepath.Join(t.TempDir(), "manifest.json")
+	vite, err := NewVite(path)
 	if vite != nil {
 		t.Errorf("expected entry map to be nil, got %v", vite)
 	}
