@@ -2,6 +2,7 @@ package lib
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
@@ -22,4 +23,8 @@ func NewConfig(path string) (*Config, error) {
 	}
 
 	return &config, nil
+}
+
+func (c *Config) Addr() string {
+	return fmt.Sprintf(":%d", c.Port)
 }

@@ -20,9 +20,9 @@ func TestNewConfig(t *testing.T) {
 		t.Fatalf("expected error to be nil, got %v", err)
 	}
 
-	port := uint16(8000)
-	if config.Port != port {
-		t.Errorf("expected port to be %d, got %d", port, config.Port)
+	expected := uint16(8000)
+	if config.Port != expected {
+		t.Errorf("expected port to be %d, got %d", expected, config.Port)
 	}
 }
 
@@ -60,5 +60,14 @@ func TestNewConfig_UnmarshallError(t *testing.T) {
 	expected := "unexpected end of JSON input"
 	if msg := err.Error(); !strings.Contains(msg, expected) {
 		t.Fatalf("expected error message to contain %q, got %q", expected, msg)
+	}
+}
+
+func TestConfig_Addr(t *testing.T) {
+	config := &Config{Port: 8000}
+
+	expected := ":8000"
+	if addr := config.Addr(); addr != expected {
+		t.Fatalf("expected Addr() to return %q, got $%q", expected, addr)
 	}
 }
